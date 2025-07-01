@@ -1,11 +1,19 @@
 use bollard::Docker;
 
-#[tauri::command]
-pub async fn get_docker_status() -> String {
-    let docker = Docker::connect_with_local_defaults().unwrap();
-    let version = docker.version().await.unwrap().version.unwrap();
-    version
+fn connect() -> Docker {
+    Docker::connect_with_defaults().unwrap()
+}
 
+#[tauri::command]
+pub async fn get_docker_status() -> bool {
+    let docker = connect();
+
+    let ping_response = match docker.ping().await {
+        Ok(_) => true,
+        Err(_) => false,
+    };
+
+    ping_response
 }
 
 
@@ -16,6 +24,6 @@ mod tests {
     #[tokio::test]
     async fn it_works() {
         let result = get_docker_status().await;
-        assert_eq!(result, "28.1.1")
+        assert_eq!(result, true)
     }
 }
