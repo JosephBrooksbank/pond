@@ -6,7 +6,7 @@ import "./App.css";
 function App() {
   const [greetMsg, setGreetMsg] = useState("");
   const [name, setName] = useState("");
-  const [myMessage, setMyMessage] = useState("");
+  const [dockerStatus, setDockerStatus] = useState("");
 
   async function greet() {
     // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
@@ -14,7 +14,7 @@ function App() {
   }
 
   const getMyMessage = async () => {
-    setMyMessage(await invoke("my_custom_command", { invokeMessage: name }));
+    setDockerStatus(await invoke("get_docker_status" ));
   }
 
   return (
@@ -54,10 +54,10 @@ function App() {
           e.preventDefault();
           getMyMessage();
         }}>
-        <button type="submit">Get My Output?</button>
+        <button type="submit">Docker Status</button>
       </form>
       <p>
-        {myMessage}
+        {dockerStatus}
       </p>
     </main>
   );
