@@ -11,7 +11,12 @@ fn greet(name: &str) -> String {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet, commands::my_custom_command, docker_commands::get_docker_status])
+        .invoke_handler(tauri::generate_handler![
+            greet,
+            commands::my_custom_command,
+            docker_commands::get_docker_status,
+            docker_commands::start_monitoring
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
