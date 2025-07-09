@@ -4,9 +4,11 @@ import '@testing-library/jest-dom'
 import App from './App'
 import { mockIPC } from './test/mockIPCMine'
 import { emit } from '@tauri-apps/api/event'
+import { clearMocks } from '@tauri-apps/api/mocks'
 
 describe('App Component', async () => {
 	beforeEach(() => {
+		clearMocks();
 		vi.clearAllMocks();
 	})
 
@@ -57,6 +59,4 @@ describe('App Component', async () => {
 			expect(screen.getByText(/"total_mem": "2000"/i)).toBeInTheDocument();
 		});
 	});
-
-
 })
