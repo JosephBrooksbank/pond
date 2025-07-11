@@ -1,31 +1,13 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
 import "./App.css";
-import { IContainerStats } from "./dockerTypes";
 import { StartComposeButton } from "./components/StartComposeButton";
+import { Card, CardContainer } from "./components/Card";
+import { ContainerStatusWidget, WidgetContainer } from "./components/ContainerStatusWidget";
 
-const useMonitoring = (containerName: string) => {
-	const [stats, setStats] = useState<IContainerStats | null>(null);
-
-	useEffect(() => {
-		invoke("start_monitoring", { containerName });
-		const unlisten = listen<IContainerStats>(`${containerName}-stats`, (event) => {
-			console.log("Received stats:", event);
-			setStats(event.payload);
-		});
-
-		return () => {
-			unlisten.then(f => f());
-		};
-	}, [containerName]);
-	return stats;
-}
 
 function App() {
 	const [dockerStatus, setDockerStatus] = useState(false);
-	const authzStatus = useMonitoring("authz-cache");
-	const coiApinstatus = useMonitoring("coi-api");
 
 	const getInitialData = async () => {
 		setDockerStatus(await invoke("get_docker_status"));
@@ -35,17 +17,25 @@ function App() {
 	}, []);
 
 	return (
-		<main className="container">
+		<main className="">
 			<h1>Docker Connection: {dockerStatus ? "Online!" : "Offline"}</h1>
-			<div className="card">
-				<h2>Conflict Of Interest</h2>
-				<pre>{JSON.stringify(coiApinstatus, null, 2)}</pre>
-				<StartComposeButton stackName="conflict-of-interest"/>
-			</div>
-			<div className="card">
-				<h2>AuthZ Status</h2>
-				<pre>{JSON.stringify(authzStatus, null, 2)}</pre>
-			</div>
+			<CardContainer>
+				<Card>
+					<h2>Conflict Of Interest</h2>
+					<WidgetContainer>
+						<ContainerStatusWidget containerName="coi-api" />
+						<ContainerStatusWidget containerName="coi-ui" />
+						<ContainerStatusWidget containerName="coi-db"/>
+					</WidgetContainer>
+					<StartComposeButton stackName="conflict-of-interest" />
+				</Card>
+				<Card>
+					<h2>AuthZ</h2>
+					<WidgetContainer>
+						<ContainerStatusWidget containerName="authz-cache" />
+					</WidgetContainer>
+				</Card>
+			</CardContainer>
 		</main>
 	);
 }
